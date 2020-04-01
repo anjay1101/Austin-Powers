@@ -1,2 +1,2 @@
-# GroupProject
+# Austin Powers
 Our Group Project Repo
