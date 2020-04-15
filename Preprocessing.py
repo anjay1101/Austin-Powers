@@ -2,6 +2,12 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
 
+# Vectorization parameters
+# Range (inclusive) of n-gram sizes for tokenizing text.
+NGRAM_RANGE = (1, 2)
+
+# Limit on the number of features. We use the top 20K features.
+TOP_K = 20000
 
 # Whether text should be split into word or character n-grams.
 # One of 'word', 'char'.
@@ -9,10 +15,6 @@ TOKEN_MODE = 'word'
 
 # Minimum document/corpus frequency below which a token will be discarded.
 MIN_DOCUMENT_FREQUENCY = 2
-
-NGRAM_RANGE = (1, 2)
-
-TOP_K = 20000
 
 def shuffle(data):
     # reorder the data randomly, Google recommends this as a best practice
