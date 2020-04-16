@@ -1,6 +1,12 @@
+import pandas as pd
+import numpy as np
+import tensorflow as tf
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
+
+
 
 # Vectorization parameters
 # Range (inclusive) of n-gram sizes for tokenizing text.
@@ -64,3 +70,47 @@ def print_explanation(X, feature_names):
     print("very cool")
     print("now we can use X to figure out that the tfidf score of %s in the 6060th document is %s" % (feature_names[50], X[6060, 50]))
     print("nice")
+
+
+def topics_to_num(data):
+    topics = list(set(data.topic.values))
+
+    # maps each topic to a number
+    topic_map = {topics[i]:i for i in range(len(topics))}
+
+    data['topic'] = data['topic'].apply(lambda x: topic_map[x])
+
+    return data, topic_map
+
+def split_train_validate(X, data, validation_percent):
+    n_rows = X.shape[0]
+    train_rows = int(n_rows * (1 - validation_percent))
+
+    train_X = X[:train_rows, :]
+    val_X = X[train_rows:, :]
+
+    train_labels = data.topic[:train_rows]
+    val_labels = data.topic[train_rows:]
+
+    return train_X, val_X, train_labels, val_labels
+
+# percentage of data that is converted to validation data
+validation_percent = 0.2
+
+def prepare_data(validation_percent=validation_percent):
+    train_data = pd.read_csv("training.csv")
+    train_data = shuffle(train_data)
+
+    train_data, topic_map = topics_to_num(train_data)
+
+    test_data = pd.read_csv("test.csv")
+    test_data, _ = topics_to_num(test_data)
+
+    X, test_X, feature_names = vectorize(train_data, test_data)
+    X = X.toarray() # make dense rather than sparse
+
+    train_X, val_X, train_labels, val_labels = split_train_validate(X, train_data, validation_percent)
+
+    num_classes = len(set(train_data.topic))
+
+    return train_X, val_X, train_labels, val_labels, num_classes, topic_map
