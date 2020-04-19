@@ -8,6 +8,9 @@ from imblearn.over_sampling import SMOTE
 from sklearn import svm
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import balanced_accuracy_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import f1_score
 import altair as alt
 alt.renderers.enable('altair_viewer')
 alt.data_transformers.disable_max_rows()
@@ -192,7 +195,7 @@ y_test = data_test['topic']
 # x_data_train, y_data_train = under_sample.fit_resample(x_train, y_train)
 
 sm = SMOTE(random_state=2)
-x_data_train, y_data_train = sm.fit_sample(x_train, y_train.ravel())
+x_data_train, y_data_train = sm.fit_sample(x_train, y_train)
 
 # counter = Counter(y_data_train)
 #
@@ -268,6 +271,9 @@ print("Training accuracy score is: ")
 print(accuracy_score(y_data_train, svc.predict(x_data_train)))
 
 print(balanced_accuracy_score(y_test, svc_pred))
+print(precision_score(y_test, svc_pred))
+print(recall_score(y_test, svc_pred))
+print(f1_score(y_test, svc_pred))
 
 # Use smote & random search
 # Test accuracy score is:
