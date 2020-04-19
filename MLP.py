@@ -69,8 +69,6 @@ def train_model(train_X,
 
 
 train_X, val_X, train_labels, val_labels, num_classes, topic_map = prepare_data()
-# model, end_vals = train_model( train_X, val_X, train_labels, val_labels)
-# print(end_vals)
 
 def test_hyperparameters(num_layers_range=[1, 2, 3],
                         num_units_range=[8, 16, 32, 64],
@@ -89,4 +87,27 @@ def test_hyperparameters(num_layers_range=[1, 2, 3],
 
     return parameter_loss
 
-print(test_hyperparameters())
+model, end_vals = train_model( train_X, val_X, train_labels, val_labels)
+
+def test_num_units(num_units_range=[64, 96, 128], rounds=3):
+
+    val_losses = {}
+    for num_units in num_units_range:
+        val_losses[num_units] = []
+        for _ in range(rounds):
+            model, end_vals = train_model( train_X, val_X, train_labels, val_labels, num_units = num_units)
+            print(end_vals)
+            val_losses[num_units].append(end_vals['val_loss'])
+        val_losses[num_units] = min(val_losses[num_units])
+
+    print(val_losses)
+
+def train_64(rounds=10):
+    results = []
+
+    for _ in range(rounds):
+        results.append(train_model( train_X, val_X, train_labels, val_labels, learning_rate = 1e-4))
+
+    print(results)
+
+train_64()
