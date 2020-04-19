@@ -1,23 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
-
-
-import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 from imblearn.over_sampling import RandomOverSampler
-from imblearn.under_sampling import RandomUnderSampler, NeighbourhoodCleaningRule
-from sklearn.feature_selection import chi2
 from sklearn import svm
 from sklearn.metrics import accuracy_score
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import RandomizedSearchCV
-from sklearn.model_selection import GridSearchCV
-import imblearn
-from collections import Counter
 import altair as alt
 alt.renderers.enable('altair_viewer')
 alt.data_transformers.disable_max_rows()
@@ -27,27 +14,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
 
-# from tqdm import tqdm  # for showing progress
-
-import time
-
-# In[36]:
-
-
 # initializing dataset
 data_train = pd.read_csv("training.csv")
 data_test = pd.read_csv("test.csv")
-#
-# # counter = Counter(data_train['topic'])
-# # print(counter)
-#
-# under_sample = RandomUnderSampler()
-#
-# x_data_train, y_data_train = under_sample.fit_resample(data_train['article_words'].reshape(1, -1), data_train['topic'])
-#
-# # counter = Counter(y_data_train)
-# #
-# # print(counter)
 
 # Data explore
 
@@ -80,9 +49,6 @@ data_test = pd.read_csv("test.csv")
 # )
 # bars.show()
 #
-
-
-
 
 # preliminary analysis
 
@@ -146,26 +112,7 @@ for topic in topics:
 
     all_unique_words = all_unique_words.union(unique_words)
 
-#     print()
-#     print(topic)
-#     print("top word counts")
-#     print(top_words_by_count)
-#
-#     print()
-#     print("top occurences")
-#     print(top_words_by_occurences)
-#     print()
-#
-# print("total words:", len(all_unique_words))
-
-# In[75]:
-
-
 # pre-processing
-
-# from sklearn.feature_extraction.text import TfidfVectorizer
-# from sklearn.feature_selection import SelectKBest
-# from sklearn.feature_selection import f_classif
 
 # Vectorization parameters
 # Range (inclusive) of n-gram sizes for tokenizing text.
@@ -188,14 +135,6 @@ def shuffle():
 
 
 def vectorize():
-    # v = TfidfVectorizer(
-    #     preprocessor=lambda x: x,  # the preprocessor is set to be the identity function (it does nothing)
-    #     tokenizer=lambda x: x.split(','),
-    #     # the tokenizer (which converts a string into individual words) splits a string at ','
-    #     ngram_range=NGRAM_RANGE,
-    #     analyzer=TOKEN_MODE,
-    #     min_df=MIN_DOCUMENT_FREQUENCY)  # we decide to use unigrams and bigrams as the google guide suggests
-
     ngram_range = (1, 2)
     min_df = 10
     max_df = 1.
