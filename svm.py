@@ -3,8 +3,11 @@
 
 import pandas as pd
 from imblearn.over_sampling import RandomOverSampler
+from imblearn.under_sampling import RandomUnderSampler
+from imblearn.over_sampling import SMOTE
 from sklearn import svm
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import balanced_accuracy_score
 import altair as alt
 alt.renderers.enable('altair_viewer')
 alt.data_transformers.disable_max_rows()
@@ -184,9 +187,12 @@ y_test = data_test['topic']
 # counter = Counter(y_train)
 # print(counter)
 
-under_sample = RandomOverSampler()
+# under_sample = RandomUnderSampler()
+#
+# x_data_train, y_data_train = under_sample.fit_resample(x_train, y_train)
 
-x_data_train, y_data_train = under_sample.fit_resample(x_train, y_train)
+sm = SMOTE(random_state=2)
+x_data_train, y_data_train = sm.fit_sample(x_train, y_train.ravel())
 
 # counter = Counter(y_data_train)
 #
@@ -248,14 +254,41 @@ x_data_train, y_data_train = under_sample.fit_resample(x_train, y_train)
 #
 # print("Best: %f using %s" % (random_search.best_score_, random_search.best_params_))
 
-svc = svm.SVC(C=0.1, kernel='linear', degree=3, gamma=0.0001)
+# svc = svm.SVC(C=0.1, kernel='linear', degree=3, gamma=0.0001)
+svc = svm.SVC(random_state=8)
 
 svc.fit(x_data_train, y_data_train)
 
 svc_pred = svc.predict(x_test)
 
+print("Test accuracy score is: ")
+print(accuracy_score(y_test, svc_pred))
+
 print("Training accuracy score is: ")
 print(accuracy_score(y_data_train, svc.predict(x_data_train)))
 
-print("Test accuracy score is: ")
-print(accuracy_score(y_test, svc_pred))
+print(balanced_accuracy_score(y_test, svc_pred))
+
+# Use smote & random search
+# Test accuracy score is:
+# 0.67
+# Training accuracy score is:
+# 0.6808421052631579
+
+# No smote no random search
+# Test accuracy score is:
+# 0.754
+# Training accuracy score is:
+# 0.8745263157894737
+
+# smote and no random search
+# Test accuracy score is:
+# 0.772
+# Training accuracy score is:
+# 0.9852901639973883
+
+# no smote and random search
+# Test accuracy score is:
+# 0.708
+# Training accuracy score is:
+# 0.732
