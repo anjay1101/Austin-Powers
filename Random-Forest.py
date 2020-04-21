@@ -1,13 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[13]:
 
-
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
 
 from Preprocessing import prepare_data
 import time
@@ -31,14 +26,15 @@ from sklearn.model_selection import RandomizedSearchCV
 from sklearn.tree import DecisionTreeClassifier
 
 
-# In[2]:
-
-
-# In[2]:
+# In[14]:
 
 
 start_time = time.time()
 train_X, val_X, train_labels, val_labels, num_classes, topic_map = prepare_data()
+
+
+# In[15]:
+
 
 #implement basic decision tree
 dtc = DecisionTreeClassifier(max_depth = 50, min_samples_leaf = 3)
@@ -64,10 +60,7 @@ print("--- %s seconds ---" % (time.time() - start_time))
 #Usually takes about 2 minutes
 
 
-# In[3]:
-
-
-# In[3]:
+# In[16]:
 
 
 #Hyperparameter Tuning of RF using CV
@@ -88,7 +81,7 @@ random_grid = {'n_estimators': [50,100,150,200],
 # First create the base model to tune
 rf = RandomForestClassifier()
 # Random search of parameters, using 3 fold cross validation, 
-rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid, n_iter = 10, cv = 3, verbose=2, n_jobs = -1)
+rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid, scoring = "balanced_accuracy", n_iter = 10, cv = 3, verbose=2, n_jobs = -1)
 # Fit the random search model
 rf_random.fit(train_X, train_labels)
 
@@ -96,7 +89,7 @@ print(rf_random.best_params_)
 
 best_random = rf_random.best_estimator_
 random_pred = best_random.predict(val_X)
-best_random_acc = accuracy_score(random_pred,val_labels)
+best_random_acc = accuracy_score(val_labels,random_pred)
 print("Accuracy of best random: ", best_random_acc)
 
 print("--- %s seconds ---" % (time.time() - start_time))
@@ -106,10 +99,7 @@ print("--- %s seconds ---" % (time.time() - start_time))
 #5-10 minutes on a slow computer
 
 
-# In[5]:
-
-
-# In[4]:
+# In[17]:
 
 
 #Step 2: Use Grid Search CV to find the best hyperparameters 
@@ -136,17 +126,14 @@ print(grid_search.best_params_)
 
 best_grid = grid_search.best_estimator_
 grid_pred = best_grid.predict(val_X)
-best_grid_acc = accuracy_score(grid_pred,val_labels)
+best_grid_acc = accuracy_score(val_labels,grid_pred)
 print("Accuracy of best grid: ", best_grid_acc)
 
 print("--- %s seconds ---" % (time.time() - start_time))
 #about 5 minutes 
 
 
-# In[6]:
-
-
-# In[5]:
+# In[18]:
 
 
 #Results
@@ -154,56 +141,56 @@ print("--- %s seconds ---" % (time.time() - start_time))
 start_time = time.time()
 
 #Decision Tree
-print("Basic decision tree accuracy: ", accuracy_score(pred_dt,val_labels))
+print("Basic decision tree accuracy: ", accuracy_score(val_labels,pred_dt))
 
 #Model 1
 print("Model 1: No parameters")
-print("Balanced Accuracy Score: ", balanced_accuracy_score(test_pred_1,val_labels))
+print("Balanced Accuracy Score: ", balanced_accuracy_score(val_labels,test_pred_1))
 print("Accuracy Score: ", rfc_1.score(val_X,val_labels))
-print("Precision: ", precision_score(test_pred_1,val_labels,average=None))
-print("Recall: ", recall_score(test_pred_1,val_labels,average=None,zero_division=0)) 
-print("F1: ", f1_score(test_pred_1,val_labels,average=None))
+print("Precision: ", precision_score(val_labels,test_pred_1,average=None))
+print("Recall: ", recall_score(val_labels,test_pred_1,average=None,zero_division=0)) 
+print("F1: ", f1_score(val_labels,test_pred_1,average=None))
 print("\n")
 
 
 #Model 2
 print("Model 2: max_depth 20, n_est = 200")
-print("Balanced Accuracy Score: ", balanced_accuracy_score(test_pred_2,val_labels))
+print("Balanced Accuracy Score: ", balanced_accuracy_score(val_labels,test_pred_2))
 print("Accuracy Score: ", rfc_2.score(val_X,val_labels))
-print("Precision: ", precision_score(test_pred_2,val_labels,average=None))
-print("Recall: ", recall_score(test_pred_2,val_labels,average=None,zero_division=0))
-print("F1: ", f1_score(test_pred_2,val_labels,average=None))
+print("Precision: ", precision_score(val_labels,test_pred_2,average=None))
+print("Recall: ", recall_score(val_labels,test_pred_2,average=None,zero_division=0))
+print("F1: ", f1_score(val_labels,test_pred_2,average=None))
 print("\n")
 
 
 #Model 3
 print("Model 3: max_depth 50, n_est = 50")
-print("Balanced Accuracy Score: ", balanced_accuracy_score(test_pred_3,val_labels))
+print("Balanced Accuracy Score: ", balanced_accuracy_score(val_labels,test_pred_3))
 print("Accuracy Score: ", rfc_3.score(val_X,val_labels))
-print("Precision: ", precision_score(test_pred_3,val_labels,average=None))
-print("Recall: ", recall_score(test_pred_3,val_labels,average=None,zero_division=0))
-print("F1: ", f1_score(test_pred_3,val_labels,average=None))
+print("Precision: ", precision_score(val_labels,test_pred_3,average=None))
+print("Recall: ", recall_score(val_labels,test_pred_3,average=None,zero_division=0))
+print("F1: ", f1_score(val_labels,test_pred_3,average=None))
 print("\n")
 
 #Best Hyperparameters based on CV
 print("\nModel 4: CV tuned with Random-Search ")
 print("Parameters :", rf_random.best_params_)
-print("Balanced Accuracy Score: ", balanced_accuracy_score(random_pred,val_labels))
+print("Balanced Accuracy Score: ", balanced_accuracy_score(val_labels,random_pred))
 print("Accuracy Score: ", rf_random.score(val_X,val_labels))
-print("Precision: ", precision_score(random_pred,val_labels,average=None, zero_division=0))
-print("Recall: ", recall_score(random_pred,val_labels,average=None,zero_division=0))
-print("F1: ", f1_score(random_pred,val_labels,average=None,zero_division=0))
+print("Precision: ", precision_score(val_labels,random_pred,average=None, zero_division=0))
+print("Recall: ", recall_score(val_labels,random_pred,average=None,zero_division=0))
+print("F1: ", f1_score(val_labels,random_pred,average=None,zero_division=0))
 print("\n")
 
 
 
 print("\nModel 5: CV tuned with Grid-Search ")
 print("Parameters :", grid_search.best_params_)
-print("Balanced Accuracy Score: ", balanced_accuracy_score(grid_pred,val_labels))
+print("Balanced Accuracy Score: ", balanced_accuracy_score(val_labels,grid_pred))
 print("Accuracy Score: ", best_grid.score(val_X,val_labels))
-print("Precision: ", precision_score(grid_pred,val_labels,average=None, zero_division=0))
-print("Recall: ", recall_score(grid_pred,val_labels,average=None,zero_division=0))
-print("F1: ", f1_score(grid_pred,val_labels,average=None,zero_division=0))
+print("Precision: ", precision_score(val_labels,grid_pred,average=None, zero_division=0))
+print("Recall: ", recall_score(val_labels,grid_pred,average=None,zero_division=0))
+print("F1: ", f1_score(val_labels,grid_pred,average=None,zero_division=0))
 print("\n")
 
 print("--- %s seconds ---" % (time.time() - start_time))
@@ -212,74 +199,66 @@ print("--- %s seconds ---" % (time.time() - start_time))
 # In[ ]:
 
 
-#Results
-
-# Basic decision tree accuracy:  0.6963157894736842
+# Basic decision tree accuracy:  0.7094736842105264
 # Model 1: No parameters
-# Balanced Accuracy Score:  0.7592188374906157
-# Accuracy Score:  0.741578947368421
-# Precision:  [0.02173913 0.25       0.2        0.24528302 0.03571429 0.03448276
-#  0.19886364 0.9321663  0.98678414 0.25       0.75574713]
-# Recall:  [0.25       0.57142857 1.         0.92857143 1.         1.
-#  0.4375     0.76207513 0.90322581 0.85714286 0.64146341]
-# F1:  [0.04       0.34782609 0.33333333 0.3880597  0.06896552 0.06666667
-#  0.2734375  0.83858268 0.94315789 0.38709677 0.6939314 ]
+# Balanced Accuracy Score:  0.339837362671898
+# Accuracy Score:  0.7478947368421053
+# Precision:  [0.78503046 0.92735043 0.80769231 1.         0.5        1.
+#  0.39726027 1.         1.         0.59697733 0.6       ]
+# Recall:  [0.92893924 0.97309417 0.41176471 0.11111111 0.1025641  0.10714286
+#  0.17365269 0.04545455 0.04545455 0.74528302 0.09375   ]
+# F1:  [0.8509434  0.94967177 0.54545455 0.2        0.17021277 0.19354839
+#  0.24166667 0.08695652 0.08695652 0.66293706 0.16216216]
 
 
 # Model 2: max_depth 20, n_est = 200
-# Balanced Accuracy Score:  0.710607763064131
-# /Users/anjayfriedman1/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/_classification.py:1859: UserWarning: y_pred contains classes not in y_true
-#   warnings.warn('y_pred contains classes not in y_true')
-# Accuracy Score:  0.6947368421052632
-# Precision:  [0.         0.         0.         0.         0.         0.
-#  0.05681818 0.95842451 0.92070485 0.04166667 0.6408046 ]
-# Recall:  [0.         0.         0.         0.         0.         0.
-#  0.32258065 0.68384075 0.92888889 1.         0.61772853]
-# F1:  [0.         0.         0.         0.         0.         0.
-#  0.09661836 0.79817768 0.92477876 0.08       0.62905501]
+# Balanced Accuracy Score:  0.23331903893210654
+# Accuracy Score:  0.7068421052631579
+# Precision:  [0.70945427 0.93809524 0.         0.         0.         0.
+#  0.37931034 0.         0.         0.58888889 0.        ]
+# Recall:  [0.95056643 0.88340807 0.         0.         0.         0.
+#  0.06586826 0.         0.         0.66666667 0.        ]
+# F1:  [0.8125     0.90993072 0.         0.         0.         0.
+#  0.1122449  0.         0.         0.62536873 0.        ]
 
 
 # Model 3: max_depth 50, n_est = 50
-# Balanced Accuracy Score:  0.7512454173122065
-# /Users/anjayfriedman1/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/_classification.py:1859: UserWarning: y_pred contains classes not in y_true
-#   warnings.warn('y_pred contains classes not in y_true')
-# Accuracy Score:  0.7294736842105263
-# Precision:  [0.04347826 0.125      0.         0.18867925 0.         0.06896552
-#  0.18181818 0.94201313 0.969163   0.16666667 0.71551724]
-# Recall:  [0.5        0.66666667 0.         0.90909091 0.         1.
-#  0.3902439  0.74224138 0.91286307 1.         0.64010283]
-# F1:  [0.08       0.21052632 0.         0.3125     0.         0.12903226
-#  0.24806202 0.83027965 0.94017094 0.28571429 0.67571235]
+# Balanced Accuracy Score:  0.3031860416329582
+# /Users/anjayfriedman1/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/_classification.py:1272: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 in labels with no predicted samples. Use `zero_division` parameter to control this behavior.
+#   _warn_prf(average, modifier, msg_start, len(result))
+# Accuracy Score:  0.7431578947368421
+# Precision:  [0.76890399 0.92139738 0.875      1.         0.33333333 1.
+#  0.45783133 1.         0.         0.61979167 0.4       ]
+# Recall:  [0.93202884 0.94618834 0.2745098  0.03703704 0.02564103 0.03571429
+#  0.22754491 0.04545455 0.         0.74842767 0.0625    ]
+# F1:  [0.84264432 0.93362832 0.41791045 0.07142857 0.04761905 0.06896552
+#  0.304      0.08695652 0.         0.67806268 0.10810811]
 
 
 
 # Model 4: CV tuned with Random-Search 
-# Parameters : {'n_estimators': 200, 'min_samples_split': 2, 'min_samples_leaf': 1, 'max_features': 'auto', 'max_depth': 100, 'bootstrap': False}
-# Balanced Accuracy Score:  0.7870539278494335
-# Accuracy Score:  0.7489473684210526
-# Precision:  [0.08695652 0.25       0.2        0.28301887 0.07142857 0.10344828
-#  0.21022727 0.93654267 0.98678414 0.3125     0.74712644]
-# Recall:  [0.57142857 0.57142857 1.         0.88235294 1.         1.
-#  0.42045455 0.76978417 0.90322581 0.88235294 0.65656566]
-# F1:  [0.1509434  0.34782609 0.33333333 0.42857143 0.13333333 0.1875
-#  0.28030303 0.84501481 0.94315789 0.46153846 0.69892473]
+# Parameters : {'n_estimators': 50, 'min_samples_split': 2, 'min_samples_leaf': 4, 'max_features': 'auto', 'max_depth': 75, 'bootstrap': False}
+# Balanced Accuracy Score:  0.32620818861592227
+# /Users/anjayfriedman1/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/_classification.py:1272: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 in labels with no predicted samples. Use `zero_division` parameter to control this behavior.
+#   _warn_prf(average, modifier, msg_start, len(result))
+# Accuracy Score:  0.32620818861592227
+# Precision:  [0.78227194 0.91845494 0.85       1.         0.6        1.
+#  0.41176471 1.         0.5        0.61483254 0.75      ]
+# Recall:  [0.9361483  0.95964126 0.33333333 0.03703704 0.07692308 0.03571429
+#  0.1257485  0.13636364 0.04545455 0.8081761  0.09375   ]
+# F1:  [0.85232068 0.93859649 0.47887324 0.07142857 0.13636364 0.06896552
+#  0.19266055 0.24       0.08333333 0.69836957 0.16666667]
 
 
 
 # Model 5: CV tuned with Grid-Search 
 # Parameters : {'bootstrap': False, 'max_depth': 100, 'max_features': 'sqrt', 'min_samples_leaf': 2, 'min_samples_split': 10, 'n_estimators': 50}
-# Balanced Accuracy Score:  0.7935883115767389
-# /Users/anjayfriedman1/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/_classification.py:1859: UserWarning: y_pred contains classes not in y_true
-#   warnings.warn('y_pred contains classes not in y_true')
-# Accuracy Score:  0.7442105263157894
-# Precision:  [0.10869565 0.25       0.2        0.24528302 0.         0.10344828
-#  0.20454545 0.93326039 0.99118943 0.375      0.72988506]
-# Recall:  [0.83333333 0.57142857 1.         0.92857143 0.         1.
-#  0.43902439 0.76296959 0.90361446 0.85714286 0.63979849]
-# F1:  [0.19230769 0.34782609 0.33333333 0.3880597  0.         0.1875
-#  0.27906977 0.83956693 0.94537815 0.52173913 0.68187919]
-
-
-
-
+# Balanced Accuracy Score:  0.3693249963108251
+# Accuracy Score:  0.7589473684210526
+# Precision:  [0.79170344 0.91983122 0.80645161 1.         0.33333333 1.
+#  0.5        1.         1.         0.62371134 0.6       ]
+# Recall:  [0.92378991 0.97757848 0.49019608 0.11111111 0.07692308 0.10714286
+#  0.24550898 0.13636364 0.04545455 0.76100629 0.1875    ]
+# F1:  [0.8526616  0.94782609 0.6097561  0.2        0.125      0.19354839
+#  0.32931727 0.24       0.08695652 0.68555241 0.28571429]
 
