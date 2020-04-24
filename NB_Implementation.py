@@ -20,11 +20,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score
 
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
 from sklearn.feature_selection import mutual_info_classif
-
 
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score 
@@ -32,6 +32,7 @@ from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import precision_score 
 from sklearn.metrics import recall_score 
 from sklearn.metrics import f1_score 
+ 
 
 
 
@@ -48,6 +49,10 @@ vect = CountVectorizer()
 
 X_train_vect = vect.fit_transform(train_data['article_words'])
 y_train = train_data['topic'].apply(lambda x: topic_map[x])
+
+#for CV use
+X_full = X_train_vect 
+y_full = y_train
 
 X_train_vect, X_test_vect, y_train, y_test = train_test_split(X_train_vect,y_train,test_size=0.2,random_state=42)
 
@@ -130,6 +135,16 @@ results("Multinomal Naive Bayes using counts and top 1k mutual info features",
 
 
 print('\n\nTotal execution time: ', datetime.now() - total_time)
+
+#CV Score of Best NB
+
+#selects top 2.5k best features based on mutual_info metric
+X_mic, _ = mutual_info_select(X_full,y_full,X_test_vect,2500)
+
+best_score = cross_val_score(mnb,X_mic,y_full,scoring='balanced_accuracy',cv=5)
+print("CV Score for best NB model (top 2.5k mutual_info features): ", np.mean(best_score))
+
+#CV Score for best NB model (top 2.5k mutual_info features):  0.742106912974923
 
 
 
