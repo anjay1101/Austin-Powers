@@ -186,7 +186,10 @@ def counts_results():
         if best_score > max_score:
             max_score = best_score
             max_alph = i
-    print("The best score with k=2500 was = ", max_score, " when alpha = ", max_alph)
+    
+    X_mic, _ = mutual_info_select(X_full,y_full,X_test_vect,2500) #full X dataset with mutual_info applied 
+    max_CV_score = cross_val_score(MultinomialNB(alpha=max_alph),X_mic,y_full,scoring='balanced_accuracy',cv=5)
+    print("The best CV score with k=2500 was = ", max_CV_score, " when alpha = ", max_alph)
 
 
 
