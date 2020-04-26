@@ -33,6 +33,7 @@ from sklearn.tree import DecisionTreeClassifier
 start_time = time.time()
 train_X, val_X, train_labels, val_labels, num_classes, topic_map = prepare_data()
 
+#use full training set for cross-validation
 full_train_X = np.concatenate((train_X,val_X),axis=0)
 full_train_labels = np.concatenate((train_labels,val_labels),axis=0)
 
@@ -70,7 +71,7 @@ print("--- %s seconds ---" % (time.time() - start_time))
 #Hyperparameter Tuning of RF using CV
 start_time = time.time()
 
-#Step 1: Use randomized search to find generally parameters 
+#Step 1: Use randomized search to find general parameters 
 
 # Create the random grid
 random_grid = {'n_estimators': [50,100,150,200],
@@ -107,6 +108,7 @@ print("--- %s seconds ---" % (time.time() - start_time))
 
 
 #Step 2: Use Grid Search CV to find the best hyperparameters 
+# based on the general best parameters from Random Search CV
 start_time = time.time()
 
 # Create the parameter grid based on the results of random search (i.e. choose ones close to those that did best)
@@ -202,7 +204,7 @@ print("--- %s seconds ---" % (time.time() - start_time))
 # In[ ]:
 
 
-#CV Score of best estimator
+#Cross Validation Score of best estimator
 #model 5
 best_rf = RandomForestClassifier(bootstrap=False, max_depth=100, max_features= 'sqrt', min_samples_leaf= 2, min_samples_split=10, n_estimators= 50)
 best_score = cross_val_score(best_rf,full_train_X,full_train_labels,scoring = 'balanced_accuracy',cv=3)
