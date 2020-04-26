@@ -22,6 +22,7 @@ from sklearn.model_selection import train_test_split
 
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import cross_val_score
 
 from sklearn.tree import DecisionTreeClassifier
 
@@ -31,6 +32,9 @@ from sklearn.tree import DecisionTreeClassifier
 
 start_time = time.time()
 train_X, val_X, train_labels, val_labels, num_classes, topic_map = prepare_data()
+
+full_train_X = np.concatenate((train_X,val_X),axis=0)
+full_train_labels = np.concatenate((train_labels,val_labels),axis=0)
 
 
 # In[15]:
@@ -195,9 +199,23 @@ print("\n")
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
-
 # In[ ]:
 
+
+#CV Score of best estimator
+#model 5
+best_rf = RandomForestClassifier(bootstrap=False, max_depth=100, max_features= 'sqrt', min_samples_leaf= 2, min_samples_split=10, n_estimators= 50)
+best_score = cross_val_score(best_rf,full_train_X,full_train_labels,scoring = 'balanced_accuracy',cv=3)
+best_acc = cross_val_score(best_rf,full_train_X,full_train_labels,scoring='accuracy',cv=3)
+print("Random Forest model - CV balanced accuracy: ", np.mean(best_score))
+print("Random Forest model - CV accuracy: ", np.mean(best_acc))
+
+
+
+
+
+# In[ ]:
+#Results
 
 # Basic decision tree accuracy:  0.7094736842105264
 # Model 1: No parameters
@@ -261,4 +279,11 @@ print("--- %s seconds ---" % (time.time() - start_time))
 #  0.24550898 0.13636364 0.04545455 0.76100629 0.1875    ]
 # F1:  [0.8526616  0.94782609 0.6097561  0.2        0.125      0.19354839
 #  0.32931727 0.24       0.08695652 0.68555241 0.28571429]
+
+
+# Parameters : {'bootstrap': False, 'max_depth': 100, 'max_features': 'sqrt', 'min_samples_leaf': 2, 'min_samples_split': 10, 'n_estimators': 50}
+#Best Random Forest model - CV balanced accuracy:  0.35233208885801565
+#Best Random Forest model - CV accuracy:  0.7377892462428565
+
+
 
