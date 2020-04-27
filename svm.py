@@ -2,20 +2,12 @@
 # coding: utf-8
 
 import pandas as pd
-from imblearn.over_sampling import RandomOverSampler
-from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import SMOTE
 from sklearn import svm
-from sklearn.metrics import accuracy_score
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import f1_score
-import altair as alt
-alt.renderers.enable('altair_viewer')
-alt.data_transformers.disable_max_rows()
-import sys
-# pre-processing
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
@@ -24,41 +16,8 @@ from sklearn.feature_selection import f_classif
 data_train = pd.read_csv("training.csv")
 data_test = pd.read_csv("test.csv")
 
-# Data explore
-
-# data_train['id'] = 1
-# df2 = pd.DataFrame(data_train.groupby('topic').count()['id']).reset_index()
-#
-# bars = alt.Chart(df2).mark_bar(size=10).encode(
-#     x=alt.X('topic'),
-#     y=alt.Y('PercentOfTotal:Q', axis=alt.Axis(format='.0%', title='% of Articles')),
-#     color='topic'
-# ).transform_window(
-#     TotalArticles='sum(id)',
-#     frame=[None, None]
-# ).transform_calculate(
-#     PercentOfTotal="datum.id / datum.TotalArticles"
-# )
-#
-# text = bars.mark_text(
-#     align='center',
-#     baseline='bottom',
-#     #dx=5  # Nudges text to right so it doesn't appear on top of the bar
-# ).encode(
-#     text=alt.Text('PercentOfTotal:Q', format='.1%')
-# )
-#
-# (bars + text).interactive().properties(
-#     height=300,
-#     width=700,
-#     title = "% of articles in each category",
-# )
-# bars.show()
-#
 
 # preliminary analysis
-
-
 def sort_dict(d):
     return {k: v for k, v in sorted(d.items(), key=lambda item: item[1], reverse=True)}
 
@@ -141,10 +100,10 @@ def shuffle():
 
 
 def vectorize():
-    ngram_range = (1, 2)
+    max_features = 300
     min_df = 10
     max_df = 1.
-    max_features = 300
+    ngram_range = (1, 2)
 
     v = TfidfVectorizer(encoding='utf-8',
                         ngram_range=ngram_range,
@@ -153,7 +112,6 @@ def vectorize():
                         max_df=max_df,
                         min_df=min_df,
                         max_features=max_features,
-                        # norm='l2',
                         sublinear_tf=True)
 
     train = v.fit_transform(data_train['article_words'])
@@ -165,20 +123,6 @@ def vectorize():
     train = selector.transform(train)
 
     test = v.transform(data_test['article_words'])
-    #
-    # category_codes = ["ARTS CULTURE ENTERTAINMENT", "BIOGRAPHIES PERSONALITIES PEOPLE", "DEFENCE", "DOMESTIC MARKETS",
-    #                   "FOREX MARKETS", "HEALTH", "MONEY MARKETS", "SCIENCE AND TECHNOLOGY", "SHARE LISTINGS", "SPORTS"]
-    #
-    # for Product in category_codes:
-    #     features_chi2 = chi2(train, data_train['topic'] == Product)
-    #     indices = np.argsort(features_chi2[0])
-    #     feature_names_array = np.array(v.get_feature_names())[indices]
-    #     unigrams = [v for v in feature_names_array if len(v.split(' ')) == 1]
-    #     bigrams = [v for v in feature_names_array if len(v.split(' ')) == 2]
-    #     print("# '{}' category:".format(Product))
-    #     print("  . Most correlated unigrams:\n. {}".format('\n. '.join(unigrams[-5:])))
-    #     print("  . Most correlated bigrams:\n. {}".format('\n. '.join(bigrams[-2:])))
-    #     print("")
 
     return train, test, features
 
@@ -187,68 +131,25 @@ x_train, x_test, feature_names = vectorize()
 y_train = data_train['topic']
 y_test = data_test['topic']
 
-# counter = Counter(y_train)
-# print(counter)
-
-# under_sample = RandomUnderSampler()
-#
-# x_data_train, y_data_train = under_sample.fit_resample(x_train, y_train)
-
 sm = SMOTE(random_state=2)
 x_data_train, y_data_train = sm.fit_sample(x_train, y_train)
-
-# counter = Counter(y_data_train)
-#
-# print(counter)
-
-# print("x_train")
-# print(x_train.shape)
-# print("x_test")
-# print(x_test.shape)
-# print("names")
-# print(feature_names)
-
-# Use grid search for hyper-parameter tuning
-# logistic = LogisticRegression()
-#
-# penalty = ['l1', 'l2']
-#
-# dual = [True, False]
-#
-# max_iter = [100, 110, 120, 130, 140]
-#
-# # c = [0.01, 0.1, 0.5, 1.0, 1.5, 2.0, 2.5]
-#
-# C = np.logspace(0, 4, 10)
-#
-# param_grid = dict(max_iter=max_iter, C=C, penalty=penalty)
-#
-# # grid = GridSearchCV(estimator=lr, param_grid=param_grid, cv=3, n_jobs=-1)
-#
-# grid = GridSearchCV(logistic, param_grid, cv=5, verbose=0)
-#
-# grid_result = grid.fit(x_train, y_train)
-#
-# print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
 
 #### svm
 
 # Best: 0.724737 using {'probability': True, 'kernel': 'linear', 'gamma': 0.0001, 'degree': 3, 'C': 0.1}
 
 # svc = svm.SVC(random_state=8)
-
-# C = [0.0001, 0.001, 0.1]
 #
-# gamma = [0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
+# C = [0.001, 0.1, 1, 10]
 #
-# degree = [1, 2, 3, 4, 5]
+# gamma = [0.0001, 0.001, 0.01, 0.1]
+#
+# degree = [1, 2, 3, 4]
 # kernel = ['linear', 'rbf', 'poly']
 #
 # probability = [True]
 #
 # random_grid = {'C': C, 'kernel': kernel, 'gamma': gamma, 'degree': degree, 'probability': probability}
-#
-# svm = svm.SVC(random_state=8)
 #
 # random_search = RandomizedSearchCV(estimator=svc, param_distributions=random_grid, n_iter=50, scoring='accuracy', cv=3,
 #                                    verbose=1, random_state=8)
@@ -257,44 +158,13 @@ x_data_train, y_data_train = sm.fit_sample(x_train, y_train)
 #
 # print("Best: %f using %s" % (random_search.best_score_, random_search.best_params_))
 
-# svc = svm.SVC(C=0.1, kernel='linear', degree=3, gamma=0.0001)
 svc = svm.SVC(random_state=8)
 
 svc.fit(x_data_train, y_data_train)
 
 svc_pred = svc.predict(x_test)
 
-print("Test accuracy score is: ")
-print(accuracy_score(y_test, svc_pred))
-
-print("Training accuracy score is: ")
-print(accuracy_score(y_data_train, svc.predict(x_data_train)))
-
 print(balanced_accuracy_score(y_test, svc_pred))
-print(precision_score(y_test, svc_pred))
-print(recall_score(y_test, svc_pred))
-print(f1_score(y_test, svc_pred))
-
-# Use smote & random search
-# Test accuracy score is:
-# 0.67
-# Training accuracy score is:
-# 0.6808421052631579
-
-# No smote no random search
-# Test accuracy score is:
-# 0.754
-# Training accuracy score is:
-# 0.8745263157894737
-
-# smote and no random search
-# Test accuracy score is:
-# 0.772
-# Training accuracy score is:
-# 0.9852901639973883
-
-# no smote and random search
-# Test accuracy score is:
-# 0.708
-# Training accuracy score is:
-# 0.732
+print(precision_score(y_test, svc_pred, average='weighted'))
+print(recall_score(y_test, svc_pred, average='weighted'))
+print(f1_score(y_test, svc_pred, average='weighted'))
