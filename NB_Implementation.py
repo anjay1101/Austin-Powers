@@ -38,55 +38,6 @@ from imblearn.over_sampling import SMOTE
 total_time = datetime.now()
 
 
-
-
-'''
-# Pre-process the training data.
-train_X, val_X, train_labels, val_labels, num_classes, topic_map = prepare_data()
-
-# Pre-process for counts
-vect = CountVectorizer()
-
-X_train_vect = vect.fit_transform(train_data['article_words'])
-y_train = train_data['topic'].apply(lambda x: topic_map[x])
-<<<<<<< HEAD
-X_train_vect, X_test_vect, y_train, y_test = train_test_split(X_train_vect,y_train,test_size=0.2,random_state=42)
-
-
-
-#selects top 2.5k best features based on mutual_info metric
-selector_4 = SelectKBest(mutual_info_classif, k=min(2500, X_train_vect.shape[1]))
-selector_4.fit(X_train_vect, y_train)
-#Transform features
-X_train_mic_4 = selector_4.transform(X_train_vect)
-X_test_mic_4 = selector_4.transform(X_test_vect)
-
-
-# Implement Multinomial Naive Bayes (MNB) using counts and top 2.5k mutual info features
-mic4_mnb = MultinomialNB().fit(X_train_mic_4,y_train)
-train_result = mic4_mnb.score(X_train_mic_4,y_train)
-print("\nThe final training score on the top 2.5k mutual info feature selection MNB classifier is: ", round(train_result, 4))
-test_result = mic4_mnb.score(X_test_mic_4,y_test)
-print("The final test score on the top 2.5k mutual info feature selection MNB classifier is: ", round(test_result, 4))
-pred = mic4_mnb.predict(X_test_mic_4)
-b_acc_score = balanced_accuracy_score(y_test,pred)
-print("The final balance accuracy score on the top 2.5k mutual info feature selection MNB classifier is: ", round(b_acc_score, 4), '\n')
-
-# Now tune the alpha for this model.
-
-max_alph = 0
-max_b_score = 0
-for i in np.arange(0.0, 1.0, 0.001):
-    mic4_mnb = MultinomialNB(alpha = i).fit(X_train_mic_4, y_train)
-    pred = mic4_mnb.predict(X_test_mic_4)
-    b_acc_score = balanced_accuracy_score(y_test, pred)
-    #print("alpha = ", i, "balanced score = ", b_acc_score)
-    if b_acc_score > max_b_score:
-        max_b_score = b_acc_score
-        max_alph = i
-print("The best balanced score with k=2500 was = ", max_b_score, " when alpha = ", max_alph)
-=======
-'''
 ##  Feature Selection using Mutual Information
 
 def mutual_info_select(X_train,y_train,X_test,k):
